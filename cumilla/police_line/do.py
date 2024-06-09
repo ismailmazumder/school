@@ -32,7 +32,7 @@ while True:
     os.makedirs(folder_name, exist_ok=True)
     def remove_prefix(text, prefix):
         return text.replace(prefix, '')
-    pic_path = "https://cumillacsc.edu.bd/"+remove_prefix(str(match.group(1)), '../../')
+    pic_path = "https://plhsc.edu.bd/"+remove_prefix(str(match.group(1)), '../../')
     without_space_pic_path = str(pic_path).replace(" ", "")
     with open(f"{folder_name}/pic.jpg", "wb") as f:
         f.write(requests.get(without_space_pic_path).content)
