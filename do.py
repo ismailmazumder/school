@@ -2,14 +2,35 @@ import requests
 from bs4 import BeautifulSoup
 import os
 import random,sys
-import string
+import string,re
 arg_url = sys.argv[1]
+main_path = os.getcwd()
+def fetch_school_name(url):
+ 
+  # Check if the URL starts with "http://" or "https://"
+  if not re.match(r"^(http|https)://", url):
+    return None
+
+  # Use regular expression to capture everything before the first dot or path separator
+  match = re.search(r"(https?://)?(www\d?\.)?([^/\.]+)", url)
+
+  # Check if there's a match
+  if not match:
+    return None
+
+  # Return the captured main name
+  return match.group(3)
+scl_name = fetch_school_name(arg_url)
+path_with_school = os.path.join(main_path,scl_name)
+os.chdir(path_with_school)
 with open('count.txt', 'r') as file:
     count = int(file.read().strip())
 while True:
     try:
         url = f'{arg_url}/Views/profile/profile_staff_single.php?type=Teacher&id={count}'
         response = requests.get(url)
+        if "Nothing found" in response.text:
+            break
         if response.status_code != 200:
             break
         soup = BeautifulSoup(response.text, 'html.parser')
