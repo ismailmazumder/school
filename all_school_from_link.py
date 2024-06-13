@@ -1,68 +1,50 @@
 import requests
 from bs4 import BeautifulSoup
 import os
-import random
-import string
-def main_function(site_url):
-	with open('count.txt', 'r') as file:
-	    count = int(file.read().strip())
-	while True:
-	    try:
-	        url = f'https://{site_url}/Views/profile/profile_staff_single.php?type=Teacher&id={count}'
-	        response = requests.get(url)
-	        if response.status_code != 200:
-	            break
-	        soup = BeautifulSoup(response.text, 'html.parser')
-	        # print(soup.get_text())
-	        main_part = soup.find(id='id_card')
-	        # print(main_part.prettify())
-	        def remove_html_tags(text):
-	            try:
-	                soup = BeautifulSoup(text, "html.parser")
-	                stripped_text = ' '.join(soup.get_text().split())
-	                return stripped_text
-	            except:
-	                stripped_text = BeautifulSoup(text, "html.parser")
-	                return stripped_text
-	        try:
-	            print(remove_html_tags(str(main_part.prettify())))
-	        except:
-	            pass
+import random,subprocess
+import string,os,re
+main_path = os.getcwd()
+def fetch_school_name(url):
+ 
+  # Check if the URL starts with "http://" or "https://"
+  if not re.match(r"^(http|https)://", url):
+    return None
 
-	        pic =  soup.find("div", class_="profile_photo")
-	        # print(pic.prettify())
-	        img_tag = pic.find("img")
-	        import re
-	        match = re.search(r'<img alt="Image" src="([^"]*)', str(img_tag))
+  # Use regular expression to capture everything before the first dot or path separator
+  match = re.search(r"(https?://)?(www\d?\.)?([^/\.]+)", url)
 
-	        # print(match.group(1))
-	        folder_name = str(count)
-	        os.makedirs(folder_name, exist_ok=True)
-	        def remove_prefix(text, prefix):
-	            return text.replace(prefix, '')
-	        pic_path = f"https://{site_url}/"+remove_prefix(str(match.group(1)), '../../')
-	        without_space_pic_path = str(pic_path).replace(" ", "")
-	        with open(f"{folder_name}/pic.jpg", "wb") as f:
-	            f.write(requests.get(without_space_pic_path).content)
-	        print(without_space_pic_path)
-	        with open(f"{folder_name}/info.txt", "w", encoding='utf-8') as f:
-	            try:
-	                f.write(remove_html_tags(str(main_part.prettify())))
-	            except Exception as e:
-	                print(f"Error removing HTML tags: {e}")
-	                f.write(str(BeautifulSoup(response, 'html.parser')))
+  # Check if there's a match
+  if not match:
+    return None
 
-	        count = count + 1
-	        with open('count.txt', 'w', encoding='utf-8') as file:
-	            file.write(str(count))
-	    except:
-	        count = count + 1
-# read line by line
+  # Return the captured main name
+  return match.group(3)
+def folder_file(school_name):
+	try:
+	 	new_folder_path = os.path.join(main_path,school_name)
+	 	os.mkdir(new_folder_path)
+	 	with open(f"{new_folder_path}\\count.txt","w") as f:
+	 		f.write("0")
+	 	# do file 
+	 	with open(f"{main_path}//do.py" , "r") as d:
+	 		do_txt = d.read()
+	 	with open(f"{new_folder_path}\\do.py","w") as f:
+	 		f.write(do_txt)
+	 	# search
+	 	with open(f"{main_path}//search.py" , "r") as d:
+	 		do_txt = d.read()
+	 	with open(f"{new_folder_path}\\search.py","w") as f:
+	 		f.write(do_txt)
+	except Exception as e:
+	 	os.rmdir(new_folder_path)
+def main_function(link):
+	url =str(link) +  f'/Views/profile/profile_staff_single.php?type=Teacher&id='
+	school_name = fetch_school_name(url)
+	print(school_name,url)
+	folder_file(school_name)
+	subprocess.Popen(["python",f"{main_path}\\{school_name}",f"{url}"])
 with open("school_link.txt") as file:
-	links = file.readlines()
-
-# thread list
-from threading import Thread
-threads = []
-for new in links:
-	thred = Thread()
+	lines = []
+	for new in file:
+		# print(new.strip())
+		main_function(new.strip())
