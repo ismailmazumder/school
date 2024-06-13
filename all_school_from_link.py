@@ -3,8 +3,12 @@ from bs4 import BeautifulSoup
 import os
 import random,subprocess
 import string,os,re
+from threading import Thread
 main_path = os.getcwd()
 schools = []
+def the_file_runner(path,link__):
+	do_py = path + "\\do.py"
+	subprocess.run(["python",do_py,link__])
 def fetch_school_name(url):
  
   # Check if the URL starts with "http://" or "https://"
@@ -55,12 +59,10 @@ with open("school_link.txt") as file:
 		# print(new.strip())
 		main_function(new.strip())
 		links.append(new.strip())
-from threading import Thread
+
 threads = []
 countt = 0
-def the_file_runner(path,link__):
-	do_py = path + "\\do.py"
-	subprocess.run(["python",do_py,link__])
+
 for new in schools:
 	now_link = links[countt]
 	countt = countt + 1

@@ -29,8 +29,8 @@ while True:
     try:
         url = f'{arg_url}/Views/profile/profile_staff_single.php?type=Teacher&id={count}'
         response = requests.get(url)
-        if "Nothing found" in response.text:
-            break
+        # if "Nothing found" in response.text:
+        #     break
         if response.status_code != 200:
             break
         soup = BeautifulSoup(response.text, 'html.parser')
